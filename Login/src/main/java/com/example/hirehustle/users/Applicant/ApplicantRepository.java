@@ -13,6 +13,7 @@ public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
 
     @Query("SELECT applicant FROM Applicant applicant")
     List<Applicant> getAllApplicants();
+
     @Query("SELECT applicant FROM Applicant applicant WHERE applicant.email=?1")
     Optional<Applicant> findByEmail(String email);
 
