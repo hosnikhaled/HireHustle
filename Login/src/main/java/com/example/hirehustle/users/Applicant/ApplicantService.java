@@ -22,7 +22,7 @@ public class ApplicantService {
     private final EmailService emailService;
 
     public List<Applicant> getAllApplicants() {
-        return applicantRepository.getAllApplicants();
+        return applicantRepository.findAll();
     }
 
     @Transactional
@@ -35,7 +35,7 @@ public class ApplicantService {
         else if (!isExist(applicant.getUsername(),applicant.getEmail())) {
             userService.saveUser(new Person(applicant.getUsername(),applicant.getEmail()));
             Token token = tokenService.generateAuthorizationToken(applicant,null);
-            String activationLink = "http://localhost:8080/api/v1/applicant/confirmToken?token=" + token;
+            String activationLink = "https://hirehustle-production.up.railway.app/api/v1/applicant/confirmToken?token=" + token;
             emailService.sendEmail(applicant.getUsername(), applicant.getEmail(), activationLink);
             applicant.setTokens(token);
             tokenService.saveToken(token);
@@ -46,7 +46,7 @@ public class ApplicantService {
         // TODO: Get Token of the applicant.
         Applicant savedApplicant = applicantRepository.getByUsername(applicant.getUsername());
         Token token = tokenService.getToken(getAuthorizationToken(savedApplicant));
-        String activationLink = "http://localhost:8080/api/v1/applicant/confirmToken?token=" + token;
+        String activationLink = "https://hirehustle-production.up.railway.app/api/v1/applicant/confirmToken?token=" + token;
         emailService.sendEmail(applicant.getUsername(), applicant.getEmail(), activationLink);
         return token.getToken();
     }
