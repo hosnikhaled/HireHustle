@@ -6,6 +6,9 @@ import com.example.hirehustle.token.TokenService;
 import com.example.hirehustle.token.TokenType;
 import com.example.hirehustle.users.Person.Person;
 import com.example.hirehustle.users.Person.UserService;
+import com.example.hirehustle.users.responses.Login.LoginFailedResponse;
+import com.example.hirehustle.users.responses.Login.LoginResponse;
+import com.example.hirehustle.users.responses.Login.LoginSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,15 +29,15 @@ public class ApplicantService {
     }
 
     @Transactional
-    public String register(Applicant applicant){
+    public String register(Applicant applicant) {
         // If applicant is stored and Enabled.
-        if (isExist(applicant.getUsername(),applicant.getEmail()) && applicant.isEnabled()){
+        if (isExist(applicant.getUsername(), applicant.getEmail()) && applicant.isEnabled()) {
             throw new IllegalStateException("Email or Username is already taken.");
         }
         // If applicant is not exist at all.
-        else if (!isExist(applicant.getUsername(),applicant.getEmail())) {
-            userService.saveUser(new Person(applicant.getUsername(),applicant.getEmail()));
-            Token token = tokenService.generateAuthorizationToken(applicant,null);
+        else if (! isExist(applicant.getUsername(), applicant.getEmail())) {
+            userService.saveUser(new Person(applicant.getUsername(), applicant.getEmail()));
+            Token token = tokenService.generateAuthorizationToken(applicant, null);
             String activationLink = "https://hirehustle-production.up.railway.app/api/v1/applicant/confirmToken?token=" + token;
             emailService.sendEmail(applicant.getUsername(), applicant.getEmail(), activationLink);
             applicant.setTokens(token);
@@ -51,8 +54,8 @@ public class ApplicantService {
         return token.getToken();
     }
 
-    public boolean isExist(String username, String email){
-        return userService.isExist(username,email);
+    public boolean isExist(String username, String email) {
+        return userService.isExist(username, email);
     }
 
     public void enableApplicant(String email) {
@@ -61,7 +64,7 @@ public class ApplicantService {
         applicantRepository.save(applicant);
     }
 
-    public String getAuthorizationToken(Applicant applicant){
+    public String getAuthorizationToken(Applicant applicant) {
         List<Token> tokens = applicant.getTokens();
         for (Token token : tokens) {
             if (token.getTokenType() == TokenType.Authorization) {
@@ -72,30 +75,34 @@ public class ApplicantService {
     }
 
     @Transactional
-    public String confirmToken(String token){
+    public String confirmToken(String token) {
         String result = tokenService.confirmToken(token);
-        if (result.equals("confirmed")){
+        if (result.equals("confirmed")) {
             Token confirmationToken = tokenService.getToken(token);
             enableApplicant(confirmationToken.getApplicant().getEmail());
         }
         return result;
     }
 
-    public String login(Applicant applicant){
-        if (!dataIsValid(applicant.getUsername(),applicant.getPassword())){
-            throw new IllegalStateException("The password or username that you've entered is incorrect.");
+    public LoginResponse login(Applicant applicant) {
+        LoginResponse response;
+        if (! dataIsValid(applicant.getUsername(), applicant.getPassword())) {
+            String message = "The password or username that you have entered is incorrect.";
+            response = new LoginFailedResponse("failed", message);
+            return response;
         }
         Applicant applicant1 = applicantRepository.getByUsername(applicant.getUsername());
         if (applicant1.isEnabled()) {
-            Token token = tokenService.generateAccessToken(applicant1,null);
+            Token token = tokenService.generateAccessToken(applicant1, null);
             tokenService.saveToken(token);
-            return token.getToken();
+            response = new LoginSuccessResponse("success", token.getToken());
+            return response;
         }
-        return "Sorry, Account isn't activated.";
+        return new LoginFailedResponse("failed", "Sorry, Account is not activated.");
     }
 
-    public boolean dataIsValid(String username, String password){
-        return applicantRepository.dataIsValid(username,password).isPresent();
+    public boolean dataIsValid(String username, String password) {
+        return applicantRepository.dataIsValid(username, password).isPresent();
     }
 
 
