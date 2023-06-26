@@ -1,7 +1,4 @@
-package com.example.hirehustle.users.responses.Login;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
+package com.example.hirehustle.users.Responses.Login;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

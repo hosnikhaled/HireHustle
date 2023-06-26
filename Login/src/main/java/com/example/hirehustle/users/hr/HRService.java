@@ -4,9 +4,14 @@ import com.example.hirehustle.email.EmailService;
 import com.example.hirehustle.token.Token;
 import com.example.hirehustle.token.TokenService;
 import com.example.hirehustle.token.TokenType;
-import com.example.hirehustle.users.Applicant.Applicant;
 import com.example.hirehustle.users.Person.Person;
 import com.example.hirehustle.users.Person.UserService;
+import com.example.hirehustle.users.Responses.Login.LoginFailedResponse;
+import com.example.hirehustle.users.Responses.Login.LoginResponse;
+import com.example.hirehustle.users.Responses.Login.LoginSuccessResponse;
+import com.example.hirehustle.users.Responses.Registration.RegistrationFailedResponse;
+import com.example.hirehustle.users.Responses.Registration.RegistrationResponse;
+import com.example.hirehustle.users.Responses.Registration.RegistrationSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,10 +32,15 @@ public class HRService {
     }
 
     @Transactional
-    public String register(HR hr){
-        // If hr is stored and Enabled.
-        if (isExist(hr.getUsername(),hr.getEmail()) && hr.isEnabled()){
-            throw new IllegalStateException("Email or Username is already taken.");
+    public RegistrationResponse register(HR hr){
+
+        RegistrationResponse registrationResponse;
+
+        // If hr is stored and activated.
+        if (isExist(hr.getUsername(),hr.getEmail()) && hr.isActivated()){
+            String message = "Email or Username is already taken.";
+            registrationResponse = new RegistrationFailedResponse("failed", message);
+            return registrationResponse;
         }
         // If hr is not exist at all.
         else if (!isExist(hr.getUsername(),hr.getEmail())) {
@@ -41,15 +51,18 @@ public class HRService {
             tokenService.saveToken(token);
             hr.setTokens(token);
             hrRepository.save(hr);
-            return token.getToken();
+            String data = "Registration success, please check your mail.";
+            registrationResponse = new RegistrationSuccessResponse("success", data);
+            return registrationResponse;
         }
-        // If hr is stored but not enabled.
-        // TODO: Get Token of the hr.
+        // If hr is stored but not activated.
         HR savedHr = hrRepository.getByUsername(hr.getUsername());
         Token token = tokenService.getToken(getAuthorizationToken(savedHr));
         String activationLink = "http://localhost:8080/api/v1/hr/confirmToken?token=" + token;
         emailService.sendEmail(hr.getUsername(), hr.getEmail(), activationLink);
-        return token.getToken();
+        String data = "Please check your mail to activate your account.";
+        registrationResponse = new RegistrationSuccessResponse("success", data);
+        return registrationResponse;
     }
 
     public boolean isExist(String username, String email){
@@ -72,27 +85,46 @@ public class HRService {
         hrRepository.save(hr);
     }
 
+    public void disableHR(String email) {
+        HR hr = hrRepository.getByEmail(email);
+        hr.setEnabled(false);
+        hrRepository.save(hr);
+    }
+
     @Transactional
     public String confirmToken(String token){
         String result = tokenService.confirmToken(token);
         if (result.equals("confirmed")){
             Token confirmationToken = tokenService.getToken(token);
-            enableHR(confirmationToken.getHr().getEmail());
+            activateHR(confirmationToken.getHr().getEmail());
         }
         return result;
     }
 
-    public String hrLogin(HR hr) {
+    public void activateHR(String email) {
+        HR hr = hrRepository.getByEmail(email);
+        hr.setActivated(true);
+        hrRepository.save(hr);
+    }
+
+    public LoginResponse hrLogin(HR hr) {
+        LoginResponse response;
         if (!dataIsValid(hr.getUsername(),hr.getPassword())){
-            throw new IllegalStateException("The password or username that you've entered is incorrect.");
+            String message = "The password or username that you have entered is incorrect.";
+            response = new LoginFailedResponse("failed", message);
+            return response;
         }
         HR hr1 = hrRepository.getByUsername(hr.getUsername());
-        if (hr1.isEnabled()) {
+        if (hr1.isActivated()) {
             Token token = tokenService.generateAccessToken(null,hr1);
             tokenService.saveToken(token);
-            return token.getToken();
+            response = new LoginSuccessResponse("success", token.getToken());
+            return response;
         }
-        return "Sorry, Account not activated.";
+        if (!hr1.isEnabled()){
+            return new LoginFailedResponse("failed", "Sorry, Your account is disabled by admin.");
+        }
+        return new LoginFailedResponse("failed", "Sorry, Account is not activated.");
     }
 
     public boolean dataIsValid(String username, String password){

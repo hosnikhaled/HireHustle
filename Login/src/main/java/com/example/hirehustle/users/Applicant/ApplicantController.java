@@ -1,6 +1,7 @@
 package com.example.hirehustle.users.Applicant;
 
-import com.example.hirehustle.users.responses.Login.LoginResponse;
+import com.example.hirehustle.users.Responses.Login.LoginResponse;
+import com.example.hirehustle.users.Responses.Registration.RegistrationResponse;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,8 @@ public class ApplicantController {
 
     @PostMapping("/register")
     public String applicantRegister(@RequestBody Applicant applicant) {
-        return applicantService.register(applicant);
+        RegistrationResponse registrationResponse = applicantService.register(applicant);
+        return gson.toJson(registrationResponse.mapToArrangeGson());
     }
 
     @PostMapping("/login")

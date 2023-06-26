@@ -1,16 +1,13 @@
-package com.example.hirehustle.users.responses.Login;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
+package com.example.hirehustle.users.Responses.Registration;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class LoginSuccessResponse extends LoginResponse{
+public class RegistrationSuccessResponse extends RegistrationResponse {
 
     private final String data;
 
-    public LoginSuccessResponse(String status, String data) {
+    public RegistrationSuccessResponse(String status, String data) {
         super(status);
         this.data = data;
     }

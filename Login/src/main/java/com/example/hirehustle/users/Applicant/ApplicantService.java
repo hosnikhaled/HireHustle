@@ -6,9 +6,12 @@ import com.example.hirehustle.token.TokenService;
 import com.example.hirehustle.token.TokenType;
 import com.example.hirehustle.users.Person.Person;
 import com.example.hirehustle.users.Person.UserService;
-import com.example.hirehustle.users.responses.Login.LoginFailedResponse;
-import com.example.hirehustle.users.responses.Login.LoginResponse;
-import com.example.hirehustle.users.responses.Login.LoginSuccessResponse;
+import com.example.hirehustle.users.Responses.Login.LoginFailedResponse;
+import com.example.hirehustle.users.Responses.Login.LoginResponse;
+import com.example.hirehustle.users.Responses.Login.LoginSuccessResponse;
+import com.example.hirehustle.users.Responses.Registration.RegistrationFailedResponse;
+import com.example.hirehustle.users.Responses.Registration.RegistrationResponse;
+import com.example.hirehustle.users.Responses.Registration.RegistrationSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,10 +32,15 @@ public class ApplicantService {
     }
 
     @Transactional
-    public String register(Applicant applicant) {
-        // If applicant is stored and Enabled.
-        if (isExist(applicant.getUsername(), applicant.getEmail()) && applicant.isEnabled()) {
-            throw new IllegalStateException("Email or Username is already taken.");
+    public RegistrationResponse register(Applicant applicant) {
+
+        RegistrationResponse registrationResponse;
+
+        // If applicant is stored and activated.
+        if (isExist(applicant.getUsername(), applicant.getEmail()) && applicant.isActivated()) {
+            String message = "Email or Username is already taken.";
+            registrationResponse = new RegistrationFailedResponse("failed", message);
+            return registrationResponse;
         }
         // If applicant is not exist at all.
         else if (! isExist(applicant.getUsername(), applicant.getEmail())) {
@@ -43,15 +51,18 @@ public class ApplicantService {
             applicant.setTokens(token);
             tokenService.saveToken(token);
             applicantRepository.save(applicant);
-            return token.getToken();
+            String data = "Registration success, please check your mail.";
+            registrationResponse = new RegistrationSuccessResponse("success", data);
+            return registrationResponse;
         }
-        // If applicant is stored but not enabled.
-        // TODO: Get Token of the applicant.
+        // If applicant is stored but not activated.
         Applicant savedApplicant = applicantRepository.getByUsername(applicant.getUsername());
         Token token = tokenService.getToken(getAuthorizationToken(savedApplicant));
         String activationLink = "https://hirehustle-production.up.railway.app/api/v1/applicant/confirmToken?token=" + token.getToken();
         emailService.sendEmail(applicant.getUsername(), applicant.getEmail(), activationLink);
-        return token.getToken();
+        String data = "Please check your mail to activate your account.";
+        registrationResponse = new RegistrationSuccessResponse("success", data);
+        return registrationResponse;
     }
 
     public boolean isExist(String username, String email) {
@@ -61,6 +72,12 @@ public class ApplicantService {
     public void enableApplicant(String email) {
         Applicant applicant = applicantRepository.getByEmail(email);
         applicant.setEnabled(true);
+        applicantRepository.save(applicant);
+    }
+
+    public void disableApplicant(String email) {
+        Applicant applicant = applicantRepository.getByEmail(email);
+        applicant.setEnabled(false);
         applicantRepository.save(applicant);
     }
 
@@ -79,9 +96,15 @@ public class ApplicantService {
         String result = tokenService.confirmToken(token);
         if (result.equals("confirmed")) {
             Token confirmationToken = tokenService.getToken(token);
-            enableApplicant(confirmationToken.getApplicant().getEmail());
+            activateApplicant(confirmationToken.getApplicant().getEmail());
         }
         return result;
+    }
+
+    public void activateApplicant(String email) {
+        Applicant applicant = applicantRepository.getByEmail(email);
+        applicant.setActivated(true);
+        applicantRepository.save(applicant);
     }
 
     public LoginResponse login(Applicant applicant) {
@@ -92,11 +115,14 @@ public class ApplicantService {
             return response;
         }
         Applicant applicant1 = applicantRepository.getByUsername(applicant.getUsername());
-        if (applicant1.isEnabled()) {
+        if (applicant1.isActivated()) {
             Token token = tokenService.generateAccessToken(applicant1, null);
             tokenService.saveToken(token);
             response = new LoginSuccessResponse("success", token.getToken());
             return response;
+        }
+        if (!applicant1.isEnabled()){
+            return new LoginFailedResponse("failed", "Sorry, Your account is disabled by admin.");
         }
         return new LoginFailedResponse("failed", "Sorry, Account is not activated.");
     }
