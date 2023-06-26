@@ -24,9 +24,9 @@ public class HR {
 
     private String firstName;
     private String lastName;
-    private String companyRepresentativeName;
-    private String companyRepresentativeEmail;
-    private String personalEmail;
+//    private String companyRepresentativeName;
+//    private String companyRepresentativeEmail;
+//    private String personalEmail;
     private String mobileNumber;
     private String nationalId;
     private String addressLine;
@@ -56,9 +56,9 @@ public class HR {
               int age) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.companyRepresentativeName = companyRepresentativeName;
-        this.companyRepresentativeEmail = companyRepresentativeEmail;
-        this.personalEmail = personalEmail;
+//        this.companyRepresentativeName = companyRepresentativeName;
+//        this.companyRepresentativeEmail = companyRepresentativeEmail;
+//        this.personalEmail = personalEmail;
         this.mobileNumber = mobileNumber;
         this.nationalId = nationalId;
         this.addressLine = addressLine;
