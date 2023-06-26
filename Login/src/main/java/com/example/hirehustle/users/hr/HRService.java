@@ -46,7 +46,7 @@ public class HRService {
         else if (!isExist(hr.getUsername(),hr.getEmail())) {
             userService.saveUser(new Person(hr.getUsername(),hr.getEmail()));
             Token token = tokenService.generateAuthorizationToken(null,hr);
-            String activationLink = "http://localhost:8080/api/v1/applicant/confirmToken?token=" + token;
+            String activationLink = "https://hirehustle-production.up.railway.app/api/v1/applicant/confirmToken?token=" + token.getToken();
             emailService.sendEmail(hr.getUsername(), hr.getEmail(), activationLink);
             tokenService.saveToken(token);
             hr.setTokens(token);
@@ -58,7 +58,7 @@ public class HRService {
         // If hr is stored but not activated.
         HR savedHr = hrRepository.getByUsername(hr.getUsername());
         Token token = tokenService.getToken(getAuthorizationToken(savedHr));
-        String activationLink = "http://localhost:8080/api/v1/hr/confirmToken?token=" + token;
+        String activationLink = "https://hirehustle-production.up.railway.app/api/v1/hr/confirmToken?token=" + token.getToken();
         emailService.sendEmail(hr.getUsername(), hr.getEmail(), activationLink);
         String data = "Please check your mail to activate your account.";
         registrationResponse = new RegistrationSuccessResponse("success", data);
