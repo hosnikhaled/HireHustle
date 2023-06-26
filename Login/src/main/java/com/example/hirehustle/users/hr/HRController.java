@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -27,6 +28,8 @@ public class HRController {
 
     @PostMapping("/register")
     public String HrRegister(@RequestBody HR hr){
+        String encodedImage = hr.getProfileImage();
+        hr.setImage(Base64.getDecoder().decode(encodedImage));
         RegistrationResponse registrationResponse = hrService.register(hr);
         return gson.toJson(registrationResponse.mapToArrangeGson());
     }

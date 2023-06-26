@@ -7,8 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Data
@@ -21,6 +20,10 @@ public class Applicant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Transient
+    private String profileImage;
+    @Lob
+    private byte[] image;
     private String firstName;
     private String lastName;
     private String mobileNumber;
@@ -60,5 +63,23 @@ public class Applicant {
 
     public void setTokens(Token token) {
         tokens.add(token);
+    }
+
+    public Map<String, Object> toMap(){
+        Map<String, Object> applicantMap = new HashMap<>();
+        String profileImage = Base64.getEncoder().encodeToString(getImage());
+        applicantMap.put("profileImage", profileImage);
+        applicantMap.put("firstName", getFirstName());
+        applicantMap.put("lastName", getLastName());
+        applicantMap.put("mobileNumber", getMobileNumber());
+        applicantMap.put("email", getEmail());
+        applicantMap.put("nationalId", getNationalId());
+        applicantMap.put("addressLine", getAddressLine());
+        applicantMap.put("username", getUsername());
+        applicantMap.put("password", getPassword());
+        applicantMap.put("residencePlace", getResidencePlace());
+        applicantMap.put("age", getAge());
+
+        return applicantMap;
     }
 }

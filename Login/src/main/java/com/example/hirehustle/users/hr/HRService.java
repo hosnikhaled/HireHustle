@@ -16,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -121,7 +123,9 @@ public class HRService {
         if (hr1.isActivated()) {
             Token token = tokenService.generateAccessToken(null,hr1);
             tokenService.saveToken(token);
-            response = new LoginSuccessResponse("success", token.getToken());
+            Map<String, Object> data = new HashMap<>();
+            data.put("token", token.getToken());
+            response = new LoginSuccessResponse("success", data, hr1, null);
             return response;
         }
         if (!hr1.isEnabled()){

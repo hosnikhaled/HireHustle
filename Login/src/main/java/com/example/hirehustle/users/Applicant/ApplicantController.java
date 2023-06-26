@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -23,6 +24,8 @@ public class ApplicantController {
 
     @PostMapping("/register")
     public String applicantRegister(@RequestBody Applicant applicant) {
+        String encodedImage = applicant.getProfileImage();
+        applicant.setImage(Base64.getDecoder().decode(encodedImage));
         RegistrationResponse registrationResponse = applicantService.register(applicant);
         return gson.toJson(registrationResponse.mapToArrangeGson());
     }
