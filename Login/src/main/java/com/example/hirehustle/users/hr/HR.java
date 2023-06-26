@@ -8,8 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @AllArgsConstructor
@@ -22,9 +21,13 @@ public class HR {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Transient
+    private String profileImage;
+    @Lob
+    private byte[] image;
     private String firstName;
     private String lastName;
-//    private String companyRepresentativeName;
+    //    private String companyRepresentativeName;
 //    private String companyRepresentativeEmail;
 //    private String personalEmail;
     private String mobileNumber;
@@ -42,18 +45,22 @@ public class HR {
 
     @OneToMany(mappedBy = "hr", cascade = CascadeType.ALL)
     List<JobPost> jobPosts;
-    public HR(String firstName,
-              String lastName,
-              String companyRepresentativeName,
-              String companyRepresentativeEmail,
-              String personalEmail,
-              String mobileNumber,
-              String nationalId,
-              String addressLine,
-              String username,
-              String password,
-              String email,
-              int age) {
+
+    public HR(
+            byte[] image,
+            String firstName,
+            String lastName,
+            String companyRepresentativeName,
+            String companyRepresentativeEmail,
+            String personalEmail,
+            String mobileNumber,
+            String nationalId,
+            String addressLine,
+            String username,
+            String password,
+            String email,
+            int age) {
+        this.image = image;
         this.firstName = firstName;
         this.lastName = lastName;
 //        this.companyRepresentativeName = companyRepresentativeName;
@@ -70,5 +77,22 @@ public class HR {
 
     public void setTokens(Token token) {
         tokens.add(token);
+    }
+
+    public Map<String, Object> toMap(){
+        Map<String, Object> hrMap = new HashMap<>();
+        String profileImage = Base64.getEncoder().encodeToString(getImage());
+        hrMap.put("profileImage", profileImage);
+        hrMap.put("firstName", getFirstName());
+        hrMap.put("lastName", getLastName());
+        hrMap.put("mobileNumber", getMobileNumber());
+        hrMap.put("nationalId", getNationalId());
+        hrMap.put("addressLine", getAddressLine());
+        hrMap.put("age", getAge());
+        hrMap.put("email", getEmail());
+        hrMap.put("username", getUsername());
+        hrMap.put("password", getPassword());
+
+        return hrMap;
     }
 }
