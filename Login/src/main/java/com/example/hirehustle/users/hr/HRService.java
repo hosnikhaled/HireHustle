@@ -37,10 +37,13 @@ public class HRService {
         RegistrationResponse registrationResponse;
 
         // If hr is stored and activated.
-        if (isExist(hr.getUsername(),hr.getEmail()) && hr.isActivated()){
-            String message = "Email or Username is already taken.";
-            registrationResponse = new RegistrationFailedResponse("failed", message);
-            return registrationResponse;
+        if (isExist(hr.getUsername(),hr.getEmail())){
+            HR hrData = hrRepository.getByUsername(hr.getUsername());
+            if (hrData.isActivated()) {
+                String message = "Email or Username is already taken.";
+                registrationResponse = new RegistrationFailedResponse("failed", message);
+                return registrationResponse;
+            }
         }
         // If hr is not exist at all.
         else if (!isExist(hr.getUsername(),hr.getEmail())) {
