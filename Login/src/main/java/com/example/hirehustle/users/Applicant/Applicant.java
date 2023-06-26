@@ -31,7 +31,7 @@ public class Applicant {
     private String password;
     private String residencePlace;
     private boolean isActivated = false;
-    private boolean isEnabled = false;
+    private boolean isEnabled = true;
     private int age;
     @OneToMany(mappedBy = "applicant", cascade = CascadeType.ALL)
     List<Token> tokens = new ArrayList<>();

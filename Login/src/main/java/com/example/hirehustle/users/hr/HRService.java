@@ -7,6 +7,9 @@ import com.example.hirehustle.token.TokenType;
 import com.example.hirehustle.users.Applicant.Applicant;
 import com.example.hirehustle.users.Person.Person;
 import com.example.hirehustle.users.Person.UserService;
+import com.example.hirehustle.users.responses.Login.LoginFailedResponse;
+import com.example.hirehustle.users.responses.Login.LoginResponse;
+import com.example.hirehustle.users.responses.Login.LoginSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,27 +75,46 @@ public class HRService {
         hrRepository.save(hr);
     }
 
+    public void disableHR(String email) {
+        HR hr = hrRepository.getByEmail(email);
+        hr.setEnabled(false);
+        hrRepository.save(hr);
+    }
+
     @Transactional
     public String confirmToken(String token){
         String result = tokenService.confirmToken(token);
         if (result.equals("confirmed")){
             Token confirmationToken = tokenService.getToken(token);
-            enableHR(confirmationToken.getHr().getEmail());
+            activateHR(confirmationToken.getHr().getEmail());
         }
         return result;
     }
 
-    public String hrLogin(HR hr) {
+    public void activateHR(String email) {
+        HR hr = hrRepository.getByEmail(email);
+        hr.setActivated(true);
+        hrRepository.save(hr);
+    }
+
+    public LoginResponse hrLogin(HR hr) {
+        LoginResponse response;
         if (!dataIsValid(hr.getUsername(),hr.getPassword())){
-            throw new IllegalStateException("The password or username that you've entered is incorrect.");
+            String message = "The password or username that you have entered is incorrect.";
+            response = new LoginFailedResponse("failed", message);
+            return response;
         }
         HR hr1 = hrRepository.getByUsername(hr.getUsername());
-        if (hr1.isEnabled()) {
+        if (hr1.isActivated()) {
             Token token = tokenService.generateAccessToken(null,hr1);
             tokenService.saveToken(token);
-            return token.getToken();
+            response = new LoginSuccessResponse("success", token.getToken());
+            return response;
         }
-        return "Sorry, Account not activated.";
+        if (!hr1.isEnabled()){
+            return new LoginFailedResponse("failed", "Sorry, Your account is disabled by admin.");
+        }
+        return new LoginFailedResponse("failed", "Sorry, Account is not activated.");
     }
 
     public boolean dataIsValid(String username, String password){

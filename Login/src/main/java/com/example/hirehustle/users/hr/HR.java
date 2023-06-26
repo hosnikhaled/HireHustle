@@ -34,7 +34,7 @@ public class HR {
     private String password;
     private String email;
     private boolean isActivated = false;
-    private boolean isEnabled = false;
+    private boolean isEnabled = true;
     private int age;
 
     @OneToMany(mappedBy = "hr", cascade = CascadeType.ALL)

@@ -64,6 +64,12 @@ public class ApplicantService {
         applicantRepository.save(applicant);
     }
 
+    public void disableApplicant(String email) {
+        Applicant applicant = applicantRepository.getByEmail(email);
+        applicant.setEnabled(false);
+        applicantRepository.save(applicant);
+    }
+
     public String getAuthorizationToken(Applicant applicant) {
         List<Token> tokens = applicant.getTokens();
         for (Token token : tokens) {
@@ -79,9 +85,15 @@ public class ApplicantService {
         String result = tokenService.confirmToken(token);
         if (result.equals("confirmed")) {
             Token confirmationToken = tokenService.getToken(token);
-            enableApplicant(confirmationToken.getApplicant().getEmail());
+            activateApplicant(confirmationToken.getApplicant().getEmail());
         }
         return result;
+    }
+
+    public void activateApplicant(String email) {
+        Applicant applicant = applicantRepository.getByEmail(email);
+        applicant.setActivated(true);
+        applicantRepository.save(applicant);
     }
 
     public LoginResponse login(Applicant applicant) {
@@ -92,11 +104,14 @@ public class ApplicantService {
             return response;
         }
         Applicant applicant1 = applicantRepository.getByUsername(applicant.getUsername());
-        if (applicant1.isEnabled()) {
+        if (applicant1.isActivated()) {
             Token token = tokenService.generateAccessToken(applicant1, null);
             tokenService.saveToken(token);
             response = new LoginSuccessResponse("success", token.getToken());
             return response;
+        }
+        if (!applicant1.isEnabled()){
+            return new LoginFailedResponse("failed", "Sorry, Your account is disabled by admin.");
         }
         return new LoginFailedResponse("failed", "Sorry, Account is not activated.");
     }

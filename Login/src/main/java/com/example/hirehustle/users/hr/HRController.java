@@ -2,6 +2,8 @@ package com.example.hirehustle.users.hr;
 
 import com.example.hirehustle.jobPosts.JobPost;
 import com.example.hirehustle.jobPosts.JobPostService;
+import com.example.hirehustle.users.responses.Login.LoginResponse;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,8 @@ public class HRController {
     private final HRService hrService;
     private final JobPostService jobPostService;
 
+    private final Gson gson = new Gson();
+
     @GetMapping("/getAllHrs")
     public List<HR> getAllHRs(){
         return hrService.getAllHRs();
@@ -27,7 +31,8 @@ public class HRController {
 
     @PostMapping("/login")
     public String HrLogin(@RequestBody HR hr){
-        return hrService.hrLogin(hr);
+        LoginResponse loginResponse = hrService.hrLogin(hr);
+        return gson.toJson(loginResponse.mapToArrangeGson());
     }
 
     @GetMapping("/confirmToken")
