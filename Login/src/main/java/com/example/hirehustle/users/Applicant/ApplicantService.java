@@ -37,10 +37,13 @@ public class ApplicantService {
         RegistrationResponse registrationResponse;
 
         // If applicant is stored and activated.
-        if (isExist(applicant.getUsername(), applicant.getEmail()) && applicant.isActivated()) {
-            String message = "Email or Username is already taken.";
-            registrationResponse = new RegistrationFailedResponse("failed", message);
-            return registrationResponse;
+        if (isExist(applicant.getUsername(), applicant.getEmail())) {
+            Applicant applicantData = applicantRepository.getByUsername(applicant.getUsername());
+            if (applicantData.isActivated()) {
+                String message = "Email or Username is already taken.";
+                registrationResponse = new RegistrationFailedResponse("failed", message);
+                return registrationResponse;
+            }
         }
         // If applicant is not exist at all.
         else if (! isExist(applicant.getUsername(), applicant.getEmail())) {
