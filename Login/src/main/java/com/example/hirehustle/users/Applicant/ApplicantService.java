@@ -112,6 +112,7 @@ public class ApplicantService {
         applicantRepository.save(applicant);
     }
 
+    @Transactional
     public LoginResponse login(Applicant applicant) {
         LoginResponse response;
         if (! dataIsValid(applicant.getUsername(), applicant.getPassword())) {
@@ -134,6 +135,7 @@ public class ApplicantService {
         return new LoginFailedResponse("failed", "Sorry, Account is not activated.");
     }
 
+    @Transactional
     public boolean dataIsValid(String username, String password) {
         return applicantRepository.dataIsValid(username, password).isPresent();
     }
