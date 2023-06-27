@@ -112,6 +112,7 @@ public class HRService {
         hrRepository.save(hr);
     }
 
+    @Transactional
     public LoginResponse hrLogin(HR hr) {
         LoginResponse response;
         if (!dataIsValid(hr.getUsername(),hr.getPassword())){
@@ -134,6 +135,7 @@ public class HRService {
         return new LoginFailedResponse("failed", "Sorry, Account is not activated.");
     }
 
+    @Transactional
     public boolean dataIsValid(String username, String password){
         return hrRepository.dataIsValid(username,password).isPresent();
     }
