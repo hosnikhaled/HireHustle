@@ -36,7 +36,7 @@ public class JobPost {
     private String jobDescription;
     @Column(nullable = false)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    public LocalDateTime expirationPeriod;
+    private LocalDateTime expirationPeriod;
     @Column(nullable = false)
     private String workingHours;
     @Column(
@@ -54,7 +54,8 @@ public class JobPost {
 
     private int appliedNumber = 0;
     @Column(nullable = false)
-    public LocalDateTime creationTime;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime creationTime;
     @Enumerated(EnumType.STRING)
     private JobPostStates jobPostState = JobPostStates.VALID;
 
