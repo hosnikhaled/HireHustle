@@ -1,13 +1,11 @@
 package com.example.hirehustle.jobPosts;
 
+import com.example.hirehustle.users.Responses.JobPosts.JobPostAdditionResponse;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/jobPosts")
@@ -16,13 +14,12 @@ public class JobPostController {
 
     private final JobPostService jobPostService;
 
-    @PostMapping("/createJobPost")
-    public String createJobPost(@RequestBody JobPost jobPost){
-        return jobPostService.createJobPost(jobPost);
-    }
+    private final Gson gson = new Gson();
 
-    @GetMapping("/AllJobPosts")
-    public List<JobPost> getAllJobPosts(){
-        return jobPostService.fetchAllJobPosts();
+
+    @GetMapping("/allValidJobPosts")
+    public String getAllValidJobPosts(){
+        JobPostAdditionResponse response = jobPostService.fetchAllValidJobPosts();
+        return gson.toJson(response);
     }
 }

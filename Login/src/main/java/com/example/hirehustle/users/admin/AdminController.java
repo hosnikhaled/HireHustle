@@ -1,11 +1,10 @@
 package com.example.hirehustle.users.admin;
 
-import com.example.hirehustle.jobPosts.JobPost;
 import com.example.hirehustle.jobPosts.JobPostService;
+import com.example.hirehustle.users.Responses.JobPosts.JobPostAdditionResponse;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -14,6 +13,7 @@ public class AdminController {
 
     private final AdminService adminService;
     private final JobPostService jobPostService;
+    private final Gson gson = new Gson();
 
     @PostMapping("/addAdmin")
     public String addAdmin(@RequestBody Admin admin){
@@ -25,9 +25,10 @@ public class AdminController {
         return adminService.adminLogin(admin);
     }
 
-    @GetMapping("/AllJobPosts")
-    public List<JobPost> getAllJobPosts(){
-        return jobPostService.fetchAllJobPosts();
+    @GetMapping("/allValidJobPosts")
+    public String getAllValidJobPosts(){
+        JobPostAdditionResponse response = jobPostService.fetchAllValidJobPosts();
+        return gson.toJson(response);
     }
 
 }

@@ -1,8 +1,10 @@
 package com.example.hirehustle.jobPosts;
 
+import com.example.hirehustle.users.Responses.JobPosts.JobPostAdditionFailedResponse;
+import com.example.hirehustle.users.Responses.JobPosts.JobPostAdditionResponse;
+import com.example.hirehustle.users.Responses.JobPosts.JobPostAdditionSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,20 +15,42 @@ public class JobPostService {
 
     private final JobPostRepository jobPostRepository;
 
-    public String createJobPost(JobPost jobPost) {
+    public JobPostAdditionResponse createJobPost(JobPost jobPost) {
+        JobPostAdditionResponse response;
         try {
-            int expirationPeriod = jobPost.getExpirationPeriod();
-            LocalDateTime expirationTime = LocalDateTime.now().plusDays(expirationPeriod);
-            jobPost.setExpirationTime(expirationTime);
             jobPost.setCreationTime(LocalDateTime.now());
             jobPostRepository.save(jobPost);
-            return "Job Post Created Successfully.";
+            response = new JobPostAdditionSuccessResponse(
+                    "success",
+                    "Job Post Created Successfully."
+            );
+            return response;
         } catch (Exception e) {
-            return e.getMessage();
+            response = new JobPostAdditionFailedResponse(
+                    "failed",
+                    "Sorry, Error occurred in storing the job post."
+            );
+            System.out.println(e.getMessage());
+            return response;
         }
     }
 
-    public List<JobPost> fetchAllJobPosts() {
-        return jobPostRepository.findAll();
+    public JobPostAdditionResponse fetchAllValidJobPosts() {
+        JobPostAdditionResponse response;
+        try {
+            List<JobPost> jobPosts = jobPostRepository.findByState(JobPostStates.VALID);
+            response = new JobPostAdditionSuccessResponse(
+                    "success",
+                    jobPosts
+            );
+            return response;
+        }catch (Exception e){
+            response = new JobPostAdditionFailedResponse(
+                    "failed",
+                    "Sorry, Error occurred fetching job posts."
+            );
+            System.out.println(e.getMessage());
+            return response;
+        }
     }
 }

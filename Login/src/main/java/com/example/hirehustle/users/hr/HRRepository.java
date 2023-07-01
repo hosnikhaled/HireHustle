@@ -1,6 +1,5 @@
 package com.example.hirehustle.users.hr;
 
-import com.example.hirehustle.users.Applicant.Applicant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

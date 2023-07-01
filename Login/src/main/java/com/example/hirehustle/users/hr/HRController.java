@@ -2,6 +2,7 @@ package com.example.hirehustle.users.hr;
 
 import com.example.hirehustle.jobPosts.JobPost;
 import com.example.hirehustle.jobPosts.JobPostService;
+import com.example.hirehustle.users.Responses.JobPosts.JobPostAdditionResponse;
 import com.example.hirehustle.users.Responses.Login.LoginResponse;
 import com.example.hirehustle.users.Responses.Registration.RegistrationResponse;
 import com.google.gson.Gson;
@@ -47,6 +48,7 @@ public class HRController {
 
     @PostMapping("/createJobPost")
     public String createJobPost(@RequestBody JobPost jobPost){
-        return jobPostService.createJobPost(jobPost);
+        JobPostAdditionResponse response = jobPostService.createJobPost(jobPost);
+        return gson.toJson(response);
     }
 }

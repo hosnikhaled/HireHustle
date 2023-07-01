@@ -1,6 +1,5 @@
 package com.example.hirehustle.users.admin;
 
-import com.example.hirehustle.token.Token;
 import com.example.hirehustle.token.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
