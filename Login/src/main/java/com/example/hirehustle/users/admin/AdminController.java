@@ -6,6 +6,8 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
@@ -26,9 +28,9 @@ public class AdminController {
     }
 
     @GetMapping("/allValidJobPosts")
-    public String getAllValidJobPosts(){
+    public Map<String, Object> getAllValidJobPosts(){
         JobPostAdditionResponse response = jobPostService.fetchAllValidJobPosts();
-        return gson.toJson(response);
+        return response.mapToArrangeGson();
     }
 
 }

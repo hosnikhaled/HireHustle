@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/hr")
@@ -47,8 +48,8 @@ public class HRController {
     }
 
     @PostMapping("/createJobPost")
-    public String createJobPost(@RequestBody JobPost jobPost){
+    public Map<String, Object> createJobPost(@RequestBody JobPost jobPost){
         JobPostAdditionResponse response = jobPostService.createJobPost(jobPost);
-        return gson.toJson(response);
+        return response.mapToArrangeGson();
     }
 }

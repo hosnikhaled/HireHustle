@@ -54,6 +54,7 @@ public class JobPost {
 
     private int appliedNumber = 0;
     @Column(nullable = false)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime creationTime;
     @Enumerated(EnumType.STRING)
     private JobPostStates jobPostState = JobPostStates.VALID;
