@@ -140,5 +140,4 @@ public class ApplicantService {
         return applicantRepository.dataIsValid(username, password).isPresent();
     }
 
-
 }

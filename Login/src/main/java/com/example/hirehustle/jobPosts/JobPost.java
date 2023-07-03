@@ -1,5 +1,6 @@
 package com.example.hirehustle.jobPosts;
 
+import com.example.hirehustle.users.Applicant.Applicant;
 import com.example.hirehustle.users.hr.HR;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -58,6 +61,14 @@ public class JobPost {
     private LocalDateTime creationTime;
     @Enumerated(EnumType.STRING)
     private JobPostStates jobPostState = JobPostStates.VALID;
+
+    @ManyToMany
+    @JoinTable(
+            name = "apply",
+            joinColumns = @JoinColumn(name = "job_post_id"),
+            inverseJoinColumns = @JoinColumn(name = "applicant_id")
+    )
+    private List<Applicant> applicants = new ArrayList<>();
 
     //many jobPost to one hr
     @ManyToOne

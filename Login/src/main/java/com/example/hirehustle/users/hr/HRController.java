@@ -52,4 +52,9 @@ public class HRController {
         JobPostAdditionResponse response = jobPostService.createJobPost(jobPost);
         return response.mapToArrangeGson();
     }
+
+    @PostMapping("/makeRecommendations/{jobPostId}")
+    public void makeRecommendations(@PathVariable Long jobPostId) throws Exception {
+        hrService.makeRecommendations(jobPostId);
+    }
 }

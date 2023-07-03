@@ -53,4 +53,10 @@ public class JobPostService {
             return response;
         }
     }
+
+    public JobPost getJobPost(Long jobPostId){
+        if (jobPostRepository.findById(jobPostId).isPresent())
+            return jobPostRepository.findById(jobPostId).get();
+        return null;
+    }
 }

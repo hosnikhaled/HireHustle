@@ -1,5 +1,6 @@
 package com.example.hirehustle.users.Applicant;
 
+import com.example.hirehustle.jobPosts.JobPost;
 import com.example.hirehustle.token.Token;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,8 +23,12 @@ public class Applicant {
     private Long id;
     @Transient
     private String profileImage;
+    @Transient
+    private String cvPlaceholder;
     @Lob
     private byte[] image;
+    @Lob
+    private byte[] cv;
     private String firstName;
     private String lastName;
     private String mobileNumber;
@@ -36,6 +41,15 @@ public class Applicant {
     private boolean isActivated = false;
     private boolean isEnabled = true;
     private int age;
+
+    @ManyToMany
+    @JoinTable(
+            name = "apply",
+            joinColumns = @JoinColumn(name = "applicant_id"),
+            inverseJoinColumns = @JoinColumn(name = "job_post_id")
+    )
+    private List<JobPost> jobPosts = new ArrayList<>();
+
     @OneToMany(mappedBy = "applicant", cascade = CascadeType.ALL)
     List<Token> tokens = new ArrayList<>();
 
