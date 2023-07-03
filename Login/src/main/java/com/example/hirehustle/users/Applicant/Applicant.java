@@ -82,7 +82,9 @@ public class Applicant {
     public Map<String, Object> toMap(){
         Map<String, Object> applicantMap = new HashMap<>();
         String profileImage = Base64.getEncoder().encodeToString(getImage());
+        String cvPlaceholder = Base64.getEncoder().encodeToString(getCv());
         applicantMap.put("profileImage", profileImage);
+        applicantMap.put("cvPlaceholder", cvPlaceholder);
         applicantMap.put("firstName", getFirstName());
         applicantMap.put("lastName", getLastName());
         applicantMap.put("mobileNumber", getMobileNumber());
